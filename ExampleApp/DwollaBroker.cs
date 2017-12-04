@@ -49,6 +49,9 @@ namespace ExampleApp
             return response.Response.Headers.Location;
         }
 
+        public async Task<Uri> UploadDocumentAsync(Uri uri, UploadDocumentRequest request) =>
+            (await PostAsync(uri, request)).Response.Headers.Location;
+
         public async Task<Customer> UpdateCustomerAsync(Uri uri, UpdateCustomerRequest request) =>
             (await PostAsync<UpdateCustomerRequest, Customer>(uri, request)).Content;
 
@@ -56,6 +59,9 @@ namespace ExampleApp
 
         public async Task<GetCustomersResponse> GetCustomersAsync(Uri uri) =>
             (await GetAsync<GetCustomersResponse>(uri)).Content;
+        
+        public async Task<GetDocumentsResponse> GetCustomerDocumentsAsync(Uri customerUri) =>
+            (await GetAsync<GetDocumentsResponse>(new Uri(customerUri.AbsoluteUri + "/documents"))).Content;
 
         public async Task<GetFundingSourcesResponse> GetCustomerFundingSourcesAsync(Uri customerUri) =>
             (await GetAsync<GetFundingSourcesResponse>(new Uri(customerUri.AbsoluteUri + "/funding-sources"))).Content;

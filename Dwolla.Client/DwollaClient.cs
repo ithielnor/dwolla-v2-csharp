@@ -11,6 +11,7 @@ using Dwolla.Client.Rest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
+using System.Linq;
 
 [assembly: InternalsVisibleTo("Dwolla.Client.Tests")]
 
@@ -97,9 +98,37 @@ namespace Dwolla.Client
             TReq content, string contentType)
         {
             var r = CreateRequest(method, requestUri, headers);
-            r.Content = content != null
-                ? new StringContent(JsonConvert.SerializeObject(content, JsonSettings), Encoding.UTF8, contentType)
-                : null;
+
+            if (content != null)
+            {
+                var stringContent = new StringContent(JsonConvert.SerializeObject(content, JsonSettings), Encoding.UTF8, contentType);
+
+                var fileParts = content.GetType().GetTypeInfo().DeclaredProperties.Where(p => p.PropertyType == typeof(File));
+
+                if (fileParts.Any())
+                {
+                    var multiPart = new MultipartFormDataContent();
+                    multiPart.Add(stringContent);
+
+                    foreach (var part in fileParts)
+                    {
+                        var value = (File)part.GetValue(content);
+
+                        if (value != null)
+                        {
+                            var partContent = new ByteArrayContent(value.Bytes);
+                            partContent.Headers.ContentType = MediaTypeHeaderValue.Parse(value.ContentType);
+                            multiPart.Add(partContent, "file", value.Filename);
+                        }
+                    }
+
+                    r.Content = multiPart;
+                }
+                else
+                {
+                    r.Content = stringContent;
+                }
+            }
             return r;
         }
 
