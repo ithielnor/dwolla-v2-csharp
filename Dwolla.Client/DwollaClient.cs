@@ -107,8 +107,10 @@ namespace Dwolla.Client
 
                 if (fileParts.Any())
                 {
-                    var multiPart = new MultipartFormDataContent();
-                    multiPart.Add(stringContent);
+                    var multiPart = new MultipartFormDataContent()
+                    {
+                        stringContent
+                    };
 
                     foreach (var part in fileParts)
                     {
@@ -116,9 +118,14 @@ namespace Dwolla.Client
 
                         if (value != null)
                         {
-                            var partContent = new ByteArrayContent(value.Bytes);
+                            var partContent = new StreamContent(value.Stream);
                             partContent.Headers.ContentType = MediaTypeHeaderValue.Parse(value.ContentType);
-                            multiPart.Add(partContent, "file", value.Filename);
+                            partContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                            {
+                                Name = "\"file\"",
+                                FileName = $"\"{value.Filename}\""
+                            };
+                            multiPart.Add(partContent);
                         }
                     }
 

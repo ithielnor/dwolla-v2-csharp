@@ -1,11 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using io = System.IO;
 
 namespace Dwolla.Client.Models
 {
     public class File
     {
-        public byte[] Bytes { get; set; }
+        public io.Stream Stream { get; set; }
 
         public string Filename { get; set; }
 

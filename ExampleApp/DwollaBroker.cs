@@ -49,8 +49,11 @@ namespace ExampleApp
             return response.Response.Headers.Location;
         }
 
-        public async Task<Uri> UploadDocumentAsync(Uri uri, UploadDocumentRequest request) =>
-            (await PostAsync(uri, request)).Response.Headers.Location;
+        public async Task<Uri> UploadDocumentAsync(Uri uri, UploadDocumentRequest request)
+        {
+            var response = await PostAsync(uri, request);
+            return response.Response.Headers.Location;
+        }
 
         public async Task<Customer> UpdateCustomerAsync(Uri uri, UpdateCustomerRequest request) =>
             (await PostAsync<UpdateCustomerRequest, Customer>(uri, request)).Content;
